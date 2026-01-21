@@ -1,5 +1,9 @@
+import os
 
 env = Environment()
+
+# Detect Homebrew prefix (Apple Silicon: /opt/homebrew, Intel: /usr/local)
+homebrew_prefix = os.environ.get('HOMEBREW_PREFIX', '/opt/homebrew')
 
 includes = '''
               .
@@ -14,9 +18,14 @@ includes = '''
               ./cost-model/include/abstract-hardware-model
               ./cost-model/src
 '''
-env.Append(LINKFLAGS=['-lboost_program_options', '-lboost_filesystem', '-lboost_system'])
-env.Append(CXXFLAGS=['-std=c++17', '-lboost_program_options',  '-lboost_filesystem', '-lboost_system'])
-env.Append(LIBS=['-lboost_program_options',  '-lboost_filesystem', '-lboost_system' ])
+
+# Add Homebrew include path for Boost headers
+env.Append(CPPPATH=[homebrew_prefix + '/include'])
+# Add Homebrew library path for Boost libraries
+env.Append(LIBPATH=[homebrew_prefix + '/lib'])
+
+env.Append(CXXFLAGS=['-std=c++17'])
+env.Append(LIBS=['boost_program_options', 'boost_filesystem'])
 
 env.Append(CPPPATH = Split(includes))
 #env.Program("maestro-top.cpp")
